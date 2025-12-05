@@ -1,10 +1,7 @@
 package com.example.miniproject04.Entity;
 
-import jakarta.persistence.Entity;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
 @NoArgsConstructor
@@ -12,4 +9,23 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Book {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long bookId;
+
+    @Column(name = "title", nullable = false, length = 255)
+    private String title;
+
+    @Column(name = "description", nullable = false)
+    private String description;
+
+    // FK: user_id
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    // FK: img_id
+    @OneToOne
+    @JoinColumn(name = "img_id")
+    private GeneratedImage generatedImage;
 }
