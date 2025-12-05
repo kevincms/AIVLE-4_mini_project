@@ -1,17 +1,16 @@
-// src/app/books/[id]/page.jsx
-
-// 클라이언트 컴포넌트로 지정합니다. (useState, useEffect 등 클라이언트 기능을 사용하기 위해 필요)
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link'; // Next.js의 Link 사용
 import { Container, Box, Typography, Button, Paper, Grid } from '@mui/material';
-import Header from '../../../components/Header';
+import { useParams } from 'next/navigation';
+import Header from '../../components/Header';
 
 // Next.js 동적 라우팅은 props로 params를 받습니다.
-export default function BookDetailPage({ params }) {
+export default function BookDetailPage() {
     // 1. URL에서 도서 ID 가져오기 (예: /books/123 -> id = 123)
-    const bookId = params.id;
+    const Params = useParams();
+    const bookId = Params.id;
 
     // 2. 상세 정보 상태 (실제로는 API 호출로 데이터를 가져와야 합니다.)
     const [book, setBook] = useState({
@@ -35,21 +34,24 @@ export default function BookDetailPage({ params }) {
     // 4. UI 렌더링
     return (
         // Container: 중앙 정렬 및 최대 너비 설정
-        <Container maxWidth="md" sx={{ mt: 4, mb: 4, pt: 2 }}>
+        <Container
+            maxWidth={false}
+            sx={{ maxWidth: 1400, mt: 4, mb: 4, ml: 32}}
+        >
             <Header />
             {/* 1. 제목 및 사용자, 수정/삭제 버튼 영역 */}
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', my: 3 }}>
-                <Typography variant="h4" component="h1">
+                <Typography variant="h4" component="h1" fontWeight={800} sx={{ ml: 75,  mb: 5}}>
                     도서 상세 정보
                 </Typography>
 
-                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                <Box sx={{ mt: "80px", display: 'flex', gap: 1, alignItems: 'center' }}>
                     {/* @님, 안녕하세요 */}
                     {/*<Typography variant="body1">@님, 안녕하세요</Typography>*/}
 
                     {/* 수정/삭제 버튼 */}
-                    <Button variant="contained" color="success" href="./edit">수정</Button>
-                    <Button variant="contained" color="error">삭제</Button>
+                    <Button variant="contained" sx={{ mb:2}} color="success" href={`/books/edit?bookId=${bookId}`}>수정</Button>
+                    <Button variant="contained"  sx={{ mr: 16, mb:2}} color="error" >삭제</Button>
                 </Box>
             </Box>
 
@@ -61,8 +63,10 @@ export default function BookDetailPage({ params }) {
                     <Paper
                         elevation={3}
                         sx={{
-                            p: 2,
-                            height: 450,
+                            ml: 15,
+                            mr: 5,
+                            p: 20,
+                            height: 500,
                             display: 'flex',
                             justifyContent: 'center',
                             alignItems: 'center',
@@ -83,18 +87,18 @@ export default function BookDetailPage({ params }) {
 
                 {/* 2-2. 오른쪽: 책 내용 출력 영역 (8/12 너비) */}
                 <Grid item xs={12} md={8}>
-                    <Paper elevation={1} sx={{ p: 3, minHeight: 450 }}>
+                    <Paper elevation={1} sx={{ p: 5, minHeight: 500 }}>
                         <Typography variant="h5" gutterBottom>
-                            책 제목 (출력): **{book.title}**
+                            책 제목: **{book.title}**
                         </Typography>
-                        <Typography variant="subtitle1" color="textSecondary" sx={{ mb: 2 }}>
-                            저자 (출력): **{book.author}**
+                        <Typography variant="subtitle1" color="textSecondary" sx={{ mt:2, mb: 5 }}>
+                            저자: **{book.author}**
                         </Typography>
 
                         {/* 책 내용 (출력) 영역 */}
-                        <Box sx={{ border: '1px solid #ccc', p: 2, minHeight: 150, mb: 3 }}>
+                        <Box sx={{ border: '1px solid #ccc', p: 2, minHeight: 250, mb: 3 }}>
                             <Typography variant="h6" gutterBottom>
-                                책 내용 (출력)
+                                책 내용
                             </Typography>
                             <Typography variant="body1">
                                 {book.contents}

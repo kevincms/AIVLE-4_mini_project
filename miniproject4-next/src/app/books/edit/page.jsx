@@ -73,12 +73,13 @@ export default function BookEditPage() {
     };
 
     return (
-        <Container maxWidth={false} sx={{ maxWidth: 1400, mt: 3, mb: 4 }}>
+        <Container maxWidth={false} sx={{ maxWidth: 1400, mt: 4, mb: 4 }}>
             <Header />
 
             {/* 제목 */}
             <Typography
                 variant="h4"
+                sx={{ mt: 5 }}
                 align="center"
                 fontWeight={800}
                 gutterBottom
@@ -166,7 +167,7 @@ export default function BookEditPage() {
                         <Typography
                             variant="h6"
                             textAlign="center"
-                            fontWeight={700}
+                            fontWeight={800}
                             sx={{ mb: 3 }}
                         >
                             책 내용
