@@ -23,9 +23,4 @@ public class Book {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-
-    // FK: img_id
-    @OneToOne
-    @JoinColumn(name = "img_id")
-    private GeneratedImage generatedImage;
 }
