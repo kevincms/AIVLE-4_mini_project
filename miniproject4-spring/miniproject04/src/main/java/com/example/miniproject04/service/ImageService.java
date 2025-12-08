@@ -22,7 +22,7 @@ public class ImageService {
     private final BookRepository bookRepository;
 
     
-    private static final String IMAGE_SAVE_DIR = System.getProperty("user.home") + File.separator + "4mp_image";
+    private static final String IMAGE_SAVE_DIR = System.getProperty("user.home") + File.separator + "tmp_image";
 
     /** =======================================================
      * 1. 이미지 등록 (프론트에서 받은 tempUrl 다운로드)
