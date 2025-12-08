@@ -1,136 +1,190 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link'; // Next.js의 Link 사용
-import { Container, Box, Typography, Button, Paper, Grid } from '@mui/material';
-import { useParams } from 'next/navigation';
-import Header from '../../components/Header';
+import React, { useEffect, useState } from "react";
+import Link from "next/link";
+import { Container, Box, Typography, Button, Paper } from "@mui/material";
+import { useParams, useRouter } from "next/navigation";
+import Header from "../../components/Header";
 
-// Next.js 동적 라우팅은 props로 params를 받습니다.
 export default function BookDetailPage() {
-    // 1. URL에서 도서 ID 가져오기 (예: /books/123 -> id = 123)
-    const Params = useParams();
-    const bookId = Params.id;
+    const params = useParams();
+    const router = useRouter();
+    const bookId = params.id;
 
-    // 2. 상세 정보 상태 (실제로는 API 호출로 데이터를 가져와야 합니다.)
     const [book, setBook] = useState({
         title: "도서 상세 정보",
         author: "저자 (출력)",
-        coverUrl: "https://via.placeholder.com/350x450?text=실제+표지+이미지+URL", // 실제 AI 이미지 URL로 변경
+        coverUrl: "https://via.placeholder.com/350x450?text=실제+표지+이미지+URL",
         createdAt: "2025. 5. 23.",
         updatedAt: "2025. 5. 23.",
-        contents: "책 내용 (출력): 이 책은 AI 기반 도서 표지 생성 프로젝트의 과정을 담고 있습니다."
+        contents:
+            "책 내용 (출력): 이 책은 AI 기반 도서 표지 생성 프로젝트의 과정을 담고 있습니다.",
     });
 
-    // 3. API 호출 함수 (컴포넌트 마운트 시 데이터 로드)
     useEffect(() => {
         if (bookId) {
-            // TODO: 백엔드 API (Spring Boot)에 /api/books/${bookId} 로 GET 요청을 보내 데이터를 가져와야 합니다.
-            console.log(`도서 ID ${bookId}의 상세 정보를 API로 로드합니다.`);
-            // setBook(fetchedData); // 실제 API 데이터로 상태 업데이트
+            console.log(`도서 ID ${bookId} 상세 정보 로드`);
+            // TODO: 실제 API 호출 후 setBook
         }
     }, [bookId]);
 
-    // 4. UI 렌더링
     return (
-        // Container: 중앙 정렬 및 최대 너비 설정
-        <Container
-            maxWidth={false}
-            sx={{ maxWidth: 1400, mt: 4, mb: 4, ml: 32}}
-        >
+        <Box sx={{ minHeight: "100vh", bgcolor: "#f5f5f7" }}>
             <Header />
-            {/* 1. 제목 및 사용자, 수정/삭제 버튼 영역 */}
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', my: 3 }}>
-                <Typography variant="h4" component="h1" fontWeight={800} sx={{ ml: 75,  mb: 5}}>
-                    도서 상세 정보
-                </Typography>
 
-                <Box sx={{ mt: "80px", display: 'flex', gap: 1, alignItems: 'center' }}>
-                    {/* @님, 안녕하세요 */}
-                    {/*<Typography variant="body1">@님, 안녕하세요</Typography>*/}
-
-                    {/* 수정/삭제 버튼 */}
-                    <Button variant="contained" sx={{ mb:2}} color="success" href={`/books/edit?bookId=${bookId}`}>수정</Button>
-                    <Button variant="contained"  sx={{ mr: 16, mb:2}} color="error" >삭제</Button>
-                </Box>
-            </Box>
-
-            {/* 2. 표지 + 책 내용 레이아웃 (Grid 시스템 사용) */}
-            <Grid container spacing={4}>
-
-                {/* 2-1. 왼쪽: 표지 영역 (4/12 너비) */}
-                <Grid item xs={12} md={4}>
-                    <Paper
-                        elevation={3}
-                        sx={{
-                            ml: 15,
-                            mr: 5,
-                            p: 20,
-                            height: 500,
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            overflow: 'hidden'
-                        }}
-                    >
-                        {book.coverUrl ? (
-                            <img
-                                src={book.coverUrl}
-                                alt="도서 표지"
-                                style={{ width: '100%', height: 'auto', borderRadius: '4px' }}
-                            />
-                        ) : (
-                            <Typography variant="h5" color="textSecondary">표지 이미지 없음</Typography>
-                        )}
-                    </Paper>
-                </Grid>
-
-                {/* 2-2. 오른쪽: 책 내용 출력 영역 (8/12 너비) */}
-                <Grid item xs={12} md={8}>
-                    <Paper elevation={1} sx={{ p: 5, minHeight: 500 }}>
-                        <Typography variant="h5" gutterBottom>
-                            책 제목: **{book.title}**
-                        </Typography>
-                        <Typography variant="subtitle1" color="textSecondary" sx={{ mt:2, mb: 5 }}>
-                            저자: **{book.author}**
-                        </Typography>
-
-                        {/* 책 내용 (출력) 영역 */}
-                        <Box sx={{ border: '1px solid #ccc', p: 2, minHeight: 250, mb: 3 }}>
-                            <Typography variant="h6" gutterBottom>
-                                책 내용
-                            </Typography>
-                            <Typography variant="body1">
-                                {book.contents}
-                            </Typography>
-                        </Box>
-
-                        {/* 생성일/수정일 */}
-                        {/*<Box>*/}
-                        {/*    <Typography variant="body2">*/}
-                        {/*        **생성일:** {book.createdAt}*/}
-                        {/*    </Typography>*/}
-                        {/*    <Typography variant="body2">*/}
-                        {/*        **수정일:** {book.updatedAt}*/}
-                        {/*    </Typography>*/}
-                        {/*</Box>*/}
-                    </Paper>
-                </Grid>
-            </Grid>
-
-            {/* 3. 도서 목록으로 돌아가기 버튼 */}
-            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-                <Button
-                    variant="outlined"
-                    // Next.js Link 컴포넌트 사용
-                    component={Link}
-                    href="/"
-                    color="primary"
+            {/* 전체 폭을 편집 페이지처럼 넓게 사용 */}
+            <Container
+                maxWidth={false}
+                sx={{ maxWidth: 1400, pt: 6, pb: 8 }}
+            >
+                {/* 상단 헤더 영역 */}
+                <Box
+                    sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        mb: 4,
+                    }}
                 >
-                    도서 목록으로 돌아가기
-                </Button>
-            </Box>
+                    <Box>
+                        <Typography variant="h4" fontWeight={800} sx={{ mb: 1 }}>
+                            도서 상세 정보
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                            생성된 표지와 책 내용을 확인하고 관리할 수 있습니다.
+                        </Typography>
+                    </Box>
 
-        </Container>
+                    <Box sx={{ display: "flex", gap: 1 }}>
+                        <Button
+                            variant="contained"
+                            color="success"
+                            onClick={() =>
+                                router.push(`/books/edit?bookId=${bookId}`)
+                            }
+                        >
+                            수정
+                        </Button>
+                        <Button variant="contained" color="error">
+                            삭제
+                        </Button>
+                    </Box>
+                </Box>
+
+                {/* 👉 편집 페이지처럼 flex 레이아웃으로 변경 */}
+                <Box
+                    mt={3}
+                    display="flex"
+                    flexDirection={{ xs: "column", md: "row" }}
+                    gap={3}
+                    alignItems="stretch"
+                >
+                    {/* 왼쪽: 표지 영역 (편집 페이지와 비슷한 폭) */}
+                    <Box flex={{ xs: "none", md: "0 0 32%" }}>
+                        <Paper
+                            elevation={3}
+                            sx={{
+                                borderRadius: 3,
+                                minHeight: 520,
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                overflow: "hidden",
+                                boxShadow: "0 10px 30px rgba(15,23,42,0.12)",
+                            }}
+                        >
+                            {book.coverUrl ? (
+                                <Box
+                                    component="img"
+                                    src={book.coverUrl}
+                                    alt="도서 표지"
+                                    sx={{
+                                        width: "100%",
+                                        height: "100%",
+                                        objectFit: "cover",
+                                        borderRadius: 2,
+                                    }}
+                                />
+                            ) : (
+                                <Typography variant="h6" color="text.secondary">
+                                    표지 이미지 없음
+                                </Typography>
+                            )}
+                        </Paper>
+                    </Box>
+
+                    {/* 오른쪽: 책 내용 카드 (나머지 전체 폭 사용) */}
+                    <Box flex="1 1 0">
+                        <Paper
+                            elevation={1}
+                            sx={{
+                                borderRadius: 3,
+                                p: 4,
+                                minHeight: 520,
+                                boxShadow: "0 8px 24px rgba(15,23,42,0.08)",
+                                bgcolor: "white",
+                            }}
+                        >
+                            <Typography variant="h5" gutterBottom fontWeight={700}>
+                                {book.title}
+                            </Typography>
+
+                            <Typography
+                                variant="subtitle1"
+                                color="text.secondary"
+                                sx={{ mb: 3 }}
+                            >
+                                저자: {book.author}
+                            </Typography>
+
+                            <Box
+                                sx={{
+                                    border: "1px solid rgba(148,163,184,0.6)",
+                                    borderRadius: 2,
+                                    p: 3,
+                                    minHeight: 320,
+                                    mb: 4,
+                                    bgcolor: "#f9fafb",
+                                }}
+                            >
+                                <Typography
+                                    variant="subtitle2"
+                                    sx={{ mb: 1, fontWeight: 600 }}
+                                >
+                                    책 내용
+                                </Typography>
+                                <Typography variant="body1">
+                                    {book.contents}
+                                </Typography>
+                            </Box>
+
+                            <Box
+                                sx={{
+                                    display: "flex",
+                                    gap: 3,
+                                    color: "text.secondary",
+                                    fontSize: 13,
+                                }}
+                            >
+                                <Typography>생성일: {book.createdAt}</Typography>
+                                <Typography>수정일: {book.updatedAt}</Typography>
+                            </Box>
+                        </Paper>
+                    </Box>
+                </Box>
+
+                {/* 뒤로가기 버튼 */}
+                <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+                    <Button
+                        variant="outlined"
+                        component={Link}
+                        href="/"
+                        color="primary"
+                    >
+                        도서 목록으로 돌아가기
+                    </Button>
+                </Box>
+            </Container>
+        </Box>
     );
 }
