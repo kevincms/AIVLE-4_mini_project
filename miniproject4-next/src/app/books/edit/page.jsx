@@ -1,260 +1,3 @@
-// "use client";
-//
-// import { useEffect, useState } from "react";
-// import { useRouter, useSearchParams } from "next/navigation";
-// import Header from "../../components/Header";
-// import {
-//     Box,
-//     Button,
-//     Card,
-//     Container,
-//     FormControl,
-//     MenuItem,
-//     Select,
-//     TextField,
-//     Typography,
-// } from "@mui/material";
-//
-// export default function BookEditPage() {
-//     const router = useRouter();
-//     const searchParams = useSearchParams();
-//     const bookId = searchParams.get("bookId");
-//     const isEditMode = !!bookId;
-//
-//     useEffect(() => {
-//         const user = localStorage.getItem("loginUser");
-//         if (!user) {
-//             alert("로그인 후 이용할 수 있습니다.");
-//             router.replace("/login");
-//         }
-//     }, [router]);
-//
-//     const [apiKey, setApiKey] = useState("");
-//     const [model, setModel] = useState("dall-e-2");
-//     const [title, setTitle] = useState("");
-//     const [content, setContent] = useState("");
-//     const [coverUrl, setCoverUrl] = useState("");
-//     const [isGenerating, setIsGenerating] = useState(false);
-//
-//     const handleGenerateCover = () => {
-//         if (!title.trim() || !content.trim() || !apiKey.trim()) {
-//             alert("제목, 내용, API Key를 모두 입력해주세요.");
-//             return;
-//         }
-//
-//         setIsGenerating(true);
-//         setCoverUrl("");
-//
-//         setTimeout(() => {
-//             setCoverUrl("https://placehold.co/400x600?text=AI+Cover");
-//             setIsGenerating(false);
-//         }, 1500);
-//     };
-//
-//     const handleSubmit = () => {
-//         if (!title.trim() || !content.trim() || !coverUrl) {
-//             alert("책 제목, 내용, 표지를 모두 입력해주세요.");
-//             return;
-//         }
-//
-//         if (isEditMode) {
-//             alert(`도서(id: ${bookId}) 수정 요청 전송 (TODO)`);
-//         } else {
-//             alert("새 도서 등록 요청 전송 (TODO)");
-//         }
-//
-//         router.push("/");
-//     };
-//
-//     const handleBackToList = () => {
-//         router.push("/");
-//     };
-//
-//     return (
-//         <Box sx={{ minHeight: "100vh", bgcolor: "#f5f5f7" }}>
-//             <Header />
-//
-//             <Container maxWidth="lg" sx={{ pt: 6, pb: 8 }}>
-//                 {/* 제목 영역 */}
-//                 <Box sx={{ mb: 4 }}>
-//                     <Typography
-//                         variant="h4"
-//                         fontWeight={800}
-//                         sx={{ mb: 1 }}
-//                         align="left"
-//                     >
-//                         AI 표지 생성
-//                     </Typography>
-//                     <Typography
-//                         variant="body2"
-//                         color="text.secondary"
-//                     >
-//                         책 내용을 입력하고 OpenAI를 통해 표지를 생성해보세요.
-//                     </Typography>
-//                 </Box>
-//
-//                 {/* API Key + 모델 선택 */}
-//                 <Card
-//                     sx={{
-//                         borderRadius: 3,
-//                         p: 3,
-//                         mb: 3,
-//                         boxShadow: "0 8px 24px rgba(15,23,42,0.08)",
-//                         border: "1px solid rgba(148,163,184,0.4)",
-//                     }}
-//                 >
-//                     <Box>
-//                         <Typography variant="body2" sx={{ mb: 0.5 }}>
-//                             API 입력
-//                         </Typography>
-//                         <TextField
-//                             fullWidth
-//                             size="small"
-//                             placeholder="OpenAI API Key 입력"
-//                             type="password"
-//                             value={apiKey}
-//                             onChange={(e) => setApiKey(e.target.value)}
-//                             sx={{ mb: 2 }}
-//                         />
-//                     </Box>
-//
-//                     <Box>
-//                         <Typography variant="body2" sx={{ mb: 0.5 }}>
-//                             모델 선택
-//                         </Typography>
-//                         <FormControl fullWidth size="small">
-//                             <Select
-//                                 value={model}
-//                                 onChange={(e) => setModel(e.target.value)}
-//                             >
-//                                 <MenuItem value="dall-e-2">
-//                                     DALL·E 2 (기본, 1024×1024)
-//                                 </MenuItem>
-//                                 <MenuItem value="dall-e-3">
-//                                     DALL·E 3 (고품질, 1024×1792)
-//                                 </MenuItem>
-//                             </Select>
-//                         </FormControl>
-//                     </Box>
-//                 </Card>
-//
-//                 {/* 표지 + 내용 */}
-//                 <Box
-//                     mt={3}
-//                     display="flex"
-//                     flexDirection={{ xs: "column", md: "row" }}
-//                     gap={3}
-//                     alignItems="stretch"
-//                 >
-//                     {/* 표지 카드 */}
-//                     <Box flex={{ xs: "none", md: "0 0 32%" }}>
-//                         <Card
-//                             sx={{
-//                                 borderRadius: 3,
-//                                 minHeight: 480,
-//                                 display: "flex",
-//                                 alignItems: "center",
-//                                 justifyContent: "center",
-//                                 border: "1px solid rgba(148,163,184,0.6)",
-//                                 boxShadow: "0 10px 28px rgba(15,23,42,0.12)",
-//                                 bgcolor: "white",
-//                             }}
-//                         >
-//                             {coverUrl ? (
-//                                 <Box
-//                                     component="img"
-//                                     src={coverUrl}
-//                                     sx={{
-//                                         width: "100%",
-//                                         height: "100%",
-//                                         borderRadius: 3,
-//                                         objectFit: "cover",
-//                                     }}
-//                                 />
-//                             ) : (
-//                                 <Typography
-//                                     variant="h5"
-//                                     color="text.secondary"
-//                                 >
-//                                     표지 미리보기
-//                                 </Typography>
-//                             )}
-//                         </Card>
-//                     </Box>
-//
-//                     {/* 책 내용 입력 카드 */}
-//                     <Box flex="1 1 0">
-//                         <Card
-//                             sx={{
-//                                 width: "100%",
-//                                 borderRadius: 3,
-//                                 minHeight: 480,
-//                                 p: 3,
-//                                 border: "1px solid rgba(148,163,184,0.6)",
-//                                 boxShadow: "0 10px 28px rgba(15,23,42,0.12)",
-//                                 bgcolor: "white",
-//                             }}
-//                         >
-//                             <Typography
-//                                 variant="h6"
-//                                 textAlign="center"
-//                                 fontWeight={800}
-//                                 sx={{ mb: 3 }}
-//                             >
-//                                 책 내용
-//                             </Typography>
-//
-//                             <TextField
-//                                 fullWidth
-//                                 size="small"
-//                                 label="책 제목 (입력)"
-//                                 value={title}
-//                                 onChange={(e) => setTitle(e.target.value)}
-//                                 sx={{ mb: 3 }}
-//                             />
-//
-//                             <TextField
-//                                 fullWidth
-//                                 multiline
-//                                 minRows={7}
-//                                 label="책 내용 (입력)"
-//                                 value={content}
-//                                 onChange={(e) => setContent(e.target.value)}
-//                             />
-//                         </Card>
-//                     </Box>
-//                 </Box>
-//
-//                 {/* 버튼 영역 */}
-//                 <Box
-//                     mt={3}
-//                     display="flex"
-//                     justifyContent="flex-end"
-//                     gap={1.5}
-//                 >
-//                     <Button
-//                         variant="outlined"
-//                         onClick={handleGenerateCover}
-//                         disabled={isGenerating}
-//                     >
-//                         {isGenerating ? "생성 중..." : "표지 생성"}
-//                     </Button>
-//
-//                     <Button variant="contained" onClick={handleSubmit}>
-//                         {isEditMode ? "수정" : "등록"}
-//                     </Button>
-//                 </Box>
-//
-//                 <Box mt={2} textAlign="center">
-//                     <Button variant="text" onClick={handleBackToList}>
-//                         도서 목록으로 돌아가기
-//                     </Button>
-//                 </Box>
-//             </Container>
-//         </Box>
-//     );
-// }
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -277,6 +20,7 @@ import {
     DialogActions,
     CircularProgress,
 } from "@mui/material";
+import axios from "axios";
 
 export default function BookEditPage() {
     const router = useRouter();
@@ -379,7 +123,7 @@ export default function BookEditPage() {
     };
 
     // 🔹 등록 / 수정
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (!title.trim() || !content.trim() || !coverUrl) {
             setDialogState({
                 open: true,
@@ -388,19 +132,66 @@ export default function BookEditPage() {
             });
             return;
         }
+        // axios 책 표지(책 표지 등록, 책 표지 수정)
+        // isEditMode가 참이면 수정하는 것 -> 책 표지 수정 (PUT)
+        // false이면 post로 보내기
 
-        // TODO: 실제 DB 등록/수정 API 호출 자리
-        const msg = isEditMode
-            ? `도서(id: ${bookId}) 수정 요청 전송 (TODO)`
-            : "새 도서 등록 요청 전송 (TODO)";
+        const user = JSON.parse(localStorage.getItem("loginUser"));
 
-        setDialogState({
-            open: true,
-            title: isEditMode ? "수정 요청 완료" : "등록 요청 완료",
-            message: msg,
-        });
+        // POST(등록) 또는 PUT(수정)으로 전송할 기본 데이터
+        const bodyData = {
+            user_id: user.userId,
+            title: title,
+            content: content,
+            cover_url: coverUrl,
+        };
 
-        setTimeout(() => router.push("/"), 1000);
+        // 수정일 경우 book_id 추가
+        if (isEditMode) {
+            bodyData.book_id = Number(bookId);
+        }
+
+        try {
+            const endpoint = isEditMode
+                ? "http://localhost:8080/api/v1/image/put"   // 수정 PUT
+                : "http://localhost:8080/api/v1/image";       // 등록 POST
+
+            const method = isEditMode ? "put" : "post";
+
+            // axios 요청
+            const response = await axios({
+                method,
+                url: endpoint,
+                data: bodyData,
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            // TODO: 실제 DB 등록/수정 API 호출 자리
+            const msg = isEditMode
+                ? `도서(id: ${bookId}) 수정 요청 전송 (TODO)`
+                : "새 도서 등록 요청 전송 (TODO)";
+
+            setDialogState({
+                open: true,
+                title: isEditMode ? "수정 요청 완료" : "등록 요청 완료",
+                message: msg,
+            });
+
+            setTimeout(() => router.push("/"), 1000);
+        } catch (err) {
+            console.error("책 저장 오류:", err);
+
+            setDialogState({
+                open: true,
+                title: "처리 실패",
+                message:
+                    err.response?.data?.message ||
+                    err.message ||
+                    "서버와 통신 중 오류가 발생했습니다.",
+            });
+        }
     };
 
     const handleBackToList = () => {
