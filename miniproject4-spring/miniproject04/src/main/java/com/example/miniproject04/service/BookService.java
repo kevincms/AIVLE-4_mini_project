@@ -7,6 +7,8 @@ import com.example.miniproject04.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Sort;
+
 
 import java.util.List;
 
@@ -51,7 +53,7 @@ public class BookService {
      * -------------------------------------------- */
     @Transactional(readOnly = true)
     public List<Book> findBooks() {
-        return bookRepository.findAll();
+        return bookRepository.findAll(Sort.by(Sort.Direction.DESC, "bookId"));
     }
 
     /** --------------------------------------------

@@ -13,6 +13,7 @@ import java.util.*;
 @RestController
 @RequestMapping("/api/v1/books")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 public class BookController {
 
     private final BookService bookService;
@@ -64,15 +65,6 @@ public class BookController {
     public ResponseEntity<?> listBooks() {
 
         List<Book> books = bookService.findBooks();
-
-        if (books.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of(
-                            "status", "error",
-                            "message", "조회할 수 있는 책이 없습니다."
-                    ));
-        }
-
         List<Map<String, Object>> data = new ArrayList<>();
 
         for (Book book : books) {

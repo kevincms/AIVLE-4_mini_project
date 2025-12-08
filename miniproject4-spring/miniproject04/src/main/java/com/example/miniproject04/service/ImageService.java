@@ -6,7 +6,9 @@ import com.example.miniproject04.repository.BookRepository;
 import com.example.miniproject04.repository.GeneratedImageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.*;
@@ -19,12 +21,13 @@ public class ImageService {
     private final GeneratedImageRepository imageRepository;
     private final BookRepository bookRepository;
 
-    // 이미지 저장할 루트 경로 (Windows)
-    private static final String IMAGE_SAVE_DIR = "C:/Users/User/4mp_image";
+    
+    private static final String IMAGE_SAVE_DIR = System.getProperty("user.home") + File.separator + "4mp_image";
 
     /** =======================================================
      * 1. 이미지 등록 (프론트에서 받은 tempUrl 다운로드)
      * ======================================================= */
+    @Transactional
     public void createImage(String tempUrl, Long bookId) {
 
         Book book = bookRepository.findById(bookId)
@@ -43,6 +46,7 @@ public class ImageService {
     /** =======================================================
      * 2. 이미지 조회
      * ======================================================= */
+    @Transactional(readOnly = true)
     public GeneratedImage getImage(Long bookId) {
 
         Book book = bookRepository.findById(bookId)
@@ -60,6 +64,7 @@ public class ImageService {
     /** =======================================================
      * 3. 이미지 수정
      * ======================================================= */
+    @Transactional
     public void updateImage(Long bookId, String tempUrl, Long userId) {
 
         Book book = bookRepository.findById(bookId)
