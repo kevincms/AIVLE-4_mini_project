@@ -11,6 +11,7 @@ public class UserService {
 
     private final UserRepository userRepository;
 
+    // 로그인
     public User login(String loginId, String password) {
 
         // 사용자 조회
@@ -27,4 +28,29 @@ public class UserService {
         // 로그인 성공
         return user;
     }
+
+
+    // 회원 가입
+    public User signup(String loginId, String password) {
+
+        // 필수값 검증
+        if (loginId == null || loginId.trim().isEmpty()
+                || password == null || password.trim().isEmpty()) {
+            throw new IllegalArgumentException("아이디와 비밀번호를 다시 확인해주세요.");
+        }
+
+        // 아이디 중복 체크
+        if (userRepository.findByLoginId(loginId).isPresent()) {
+            throw new IllegalArgumentException("이미 사용 중인 아이디입니다.");
+        }
+
+        // User 엔티티 생성 및 저장
+        User user = new User();
+        user.setLoginId(loginId);
+        user.setPassword(password);
+
+        return userRepository.save(user);
+    }
+    
+
 }

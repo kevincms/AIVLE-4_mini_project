@@ -18,11 +18,25 @@ public class GlobalExceptionHandler {
         String clientMessage;
 
         switch (msg) {
+            //User
+            case "아이디 또는 비밀번호가 잘못되었습니다.":
+                status = HttpStatus.UNAUTHORIZED; // 401
+                clientMessage = "아이디 또는 비밀번호가 잘못되었습니다.";
+                break;
+            case "아이디와 비밀번호를 다시 확인해주세요.":
+                // 회원가입 시 login_id 또는 password 누락/공백
+                status = HttpStatus.BAD_REQUEST;           // 400
+                clientMessage = "아이디와 비밀번호를 다시 확인해주세요.";
+                break;
+            case "이미 사용 중인 아이디입니다.":
+                status = HttpStatus.BAD_REQUEST;   // 400
+                clientMessage = "이미 사용 중인 아이디입니다.";
+                break;
             case "존재하지 않는 사용자입니다.":
                 status = HttpStatus.BAD_REQUEST;   // 400
                 clientMessage = "존재하지 않는 사용자입니다.";
                 break;
-
+            //Book
             case "존재하지 않는 책입니다.":
                 status = HttpStatus.NOT_FOUND;     // 404
                 clientMessage = "삭제된 목록입니다.";

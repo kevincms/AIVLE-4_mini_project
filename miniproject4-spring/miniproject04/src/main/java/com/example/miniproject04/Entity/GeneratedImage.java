@@ -15,7 +15,7 @@ public class GeneratedImage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long imgId;
 
-    @Column(name = "image_url", nullable = false)
+    @Column(name = "image_url", nullable = false, length = 1000)
     private String imageUrl;
 
     /* 양방향일때 사용
