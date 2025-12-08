@@ -12,6 +12,7 @@ public class UserService {
     private final UserRepository userRepository;
 
     // 로그인
+    @Transactional(readOnly = true)
     public User login(String loginId, String password) {
 
         // 사용자 조회
@@ -31,6 +32,7 @@ public class UserService {
 
 
     // 회원 가입
+    @Transactional
     public User signup(String loginId, String password) {
 
         // 필수값 검증

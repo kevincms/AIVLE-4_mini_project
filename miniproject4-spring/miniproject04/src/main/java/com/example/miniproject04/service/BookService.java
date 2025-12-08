@@ -6,6 +6,7 @@ import com.example.miniproject04.repository.BookRepository;
 import com.example.miniproject04.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -19,6 +20,7 @@ public class BookService {
     /** --------------------------------------------
      * 1. 책 생성 (POST /api/v1/books)
      * -------------------------------------------- */
+    @Transactional
     public Book createBook(Long userId, String title, String description) {
 
         User user = userRepository.findById(userId)
@@ -36,6 +38,7 @@ public class BookService {
      * 2. 책 단건 조회 (POST /api/v1/books/check)
      *    Controller에서 power/title/desc 구성
      * -------------------------------------------- */
+    @Transactional(readOnly = true)
     public Book findBook(Long bookId) {
 
         return bookRepository.findById(bookId)
@@ -46,6 +49,7 @@ public class BookService {
      * 3. 책 목록 조회 (GET /api/v1/books/list)
      *    Controller에서 JSON 형태로 변환
      * -------------------------------------------- */
+    @Transactional(readOnly = true)
     public List<Book> findBooks() {
         return bookRepository.findAll();
     }
@@ -54,6 +58,7 @@ public class BookService {
      * 4. 책 수정 (PUT /api/v1/books/put)
      *    명세서: 제목/내용만 수정, 이미지 수정 X
      * -------------------------------------------- */
+    @Transactional
     public void updateBook(Long bookId, Long userId, String title, String description, String ignoreImage) {
 
         Book book = findBook(bookId);
@@ -76,6 +81,7 @@ public class BookService {
     /** --------------------------------------------
      * 5. 책 삭제 (DELETE /api/v1/books/delete/{book_id})
      * -------------------------------------------- */
+    @Transactional
     public void deleteBook(Long bookId, Long userId) {
 
         Book book = findBook(bookId);
