@@ -1,7 +1,6 @@
 package com.example.miniproject04.controller;
 
 import com.example.miniproject04.Entity.Book;
-import com.example.miniproject04.Entity.User;
 import com.example.miniproject04.service.BookService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,38 +17,34 @@ public class BookController {
 
     private final BookService bookService;
 
-    //책 생성
+    /** 책 생성 */
     @PostMapping
-    public ResponseEntity<?> createBook(@RequestBody Book book) {
+    public ResponseEntity<?> createBook(@RequestBody Map<String, Object> req) {
 
-        // 최소 유효성 검사 → 오류는 IllegalArgumentException 로 던짐
-        if (book.getUser() == null ||
-                book.getUser().getUserId() == null ||
-                book.getTitle() == null || book.getTitle().trim().isEmpty() ||
-                book.getDescription() == null || book.getDescription().trim().isEmpty()) {
+        Long userId = Long.valueOf(req.get("user_id").toString());
+        String title = (String) req.get("title");
+        String description = (String) req.get("description");
 
+        if (title == null || title.trim().isEmpty() ||
+                description == null || description.trim().isEmpty()) {
             throw new IllegalArgumentException("제목과 내용을 다시 확인");
         }
 
-        Book saved = bookService.createBook(
-                book.getUser().getUserId(),
-                book.getTitle(),
-                book.getDescription()
-        );
+        Book saved = bookService.createBook(userId, title, description);
 
-        return ResponseEntity.ok(
-                Map.of("book_id", saved.getBookId())
-        );
+        return ResponseEntity.ok(Map.of("book_id", saved.getBookId()));
     }
 
-    //책 단건 조회
+    /** 책 단건 조회 */
     @PostMapping("/check")
-    public ResponseEntity<?> checkBook(@RequestBody Book requestBook) {
+    public ResponseEntity<?> checkBook(@RequestBody Map<String, Object> req) {
 
-        Book book = bookService.findBook(requestBook.getBookId());
+        Long bookId = Long.valueOf(req.get("book_id").toString());
+        Long userId = Long.valueOf(req.get("user_id").toString());
 
-        Long requestUserId = requestBook.getUser().getUserId();
-        String power = book.getUser().getUserId().equals(requestUserId)
+        Book book = bookService.findBook(bookId);
+
+        String power = book.getUser().getUserId().equals(userId)
                 ? "작성자" : "이용자";
 
         return ResponseEntity.ok(
@@ -60,11 +55,21 @@ public class BookController {
                 )
         );
     }
+
+    /** 책 목록 조회 */
     @GetMapping("/list")
-    //책 목록 조회
     public ResponseEntity<?> listBooks() {
 
         List<Book> books = bookService.findBooks();
+
+        if (books.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of(
+                            "status", "error",
+                            "message", "조회할 수 있는 책이 없습니다."
+                    ));
+        }
+
         List<Map<String, Object>> data = new ArrayList<>();
 
         for (Book book : books) {
@@ -78,30 +83,28 @@ public class BookController {
         return ResponseEntity.ok(Map.of("data", data));
     }
 
-    //책 수정
+    /** 책 수정 */
     @PutMapping("/put")
-    public ResponseEntity<?> updateBook(@RequestBody Book book) {
+    public ResponseEntity<?> updateBook(@RequestBody Map<String, Object> req) {
 
-        bookService.updateBook(
-                book.getBookId(),
-                book.getUser().getUserId(),
-                book.getTitle(),
-                book.getDescription(),
-                null
-        );
+        Long bookId = Long.valueOf(req.get("book_id").toString());
+        Long userId = Long.valueOf(req.get("user_id").toString());
+        String title = (String) req.get("title");
+        String description = (String) req.get("description");
+
+        bookService.updateBook(bookId, userId, title, description, null);
 
         return ResponseEntity.ok().build();
     }
 
     //책 삭제
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> deleteBook(@RequestBody Map<String, Object> req) {
 
-    @DeleteMapping("/delete/{bookId}")
-    public ResponseEntity<?> deleteBook(
-            @PathVariable Long bookId,
-            @RequestBody User user
-    ) {
+        Long bookId = Long.valueOf(req.get("book_id").toString());
+        Long userId = Long.valueOf(req.get("user_id").toString());
 
-        bookService.deleteBook(bookId, user.getUserId());
+        bookService.deleteBook(bookId, userId);
 
         return ResponseEntity.ok(
                 Map.of(
@@ -110,4 +113,6 @@ public class BookController {
                 )
         );
     }
+
+
 }

@@ -24,7 +24,7 @@ public class ImageController {
 
         try {
             String tempUrl = (String) req.get("image_url");   // 프론트가 보내는 DALL·E URL
-            Long bookId = Long.valueOf(req.get("bookId").toString());
+            Long bookId = Long.valueOf(req.get("book_id").toString());
 
             imageService.createImage(tempUrl, bookId);
 
@@ -45,7 +45,7 @@ public class ImageController {
     public ResponseEntity<?> getImage(@RequestBody Map<String, Object> req) {
 
         try {
-            Long bookId = Long.valueOf(req.get("bookId").toString());
+            Long bookId = Long.valueOf(req.get("book_id").toString());
 
             GeneratedImage img = imageService.getImage(bookId);
 
@@ -71,8 +71,8 @@ public class ImageController {
     public ResponseEntity<?> updateImage(@RequestBody Map<String, Object> req) {
 
         try {
-            Long bookId = Long.valueOf(req.get("bookId").toString());
-            Long userId = Long.valueOf(req.get("userId").toString());
+            Long bookId = Long.valueOf(req.get("book_id").toString());
+            Long userId = Long.valueOf(req.get("user_id").toString());
             String tempUrl = (String) req.get("image_url");
 
             imageService.updateImage(bookId, tempUrl, userId);
