@@ -1,10 +1,8 @@
 package com.example.miniproject04.service;
 
 import com.example.miniproject04.Entity.Book;
-import com.example.miniproject04.Entity.GeneratedImage;
 import com.example.miniproject04.Entity.User;
 import com.example.miniproject04.repository.BookRepository;
-import com.example.miniproject04.repository.GeneratedImageRepository;
 import com.example.miniproject04.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,10 +15,9 @@ public class BookService {
 
     private final BookRepository bookRepository;
     private final UserRepository userRepository;
-    private final GeneratedImageRepository imageRepository;
 
     /** --------------------------------------------
-     * 1. 책 생성 (POST /api/v1/books/{user_id})
+     * 1. 책 생성 (POST /api/v1/books)
      * -------------------------------------------- */
     public Book createBook(Long userId, String title, String description) {
 
@@ -32,56 +29,48 @@ public class BookService {
         book.setTitle(title);
         book.setDescription(description);
 
-        return bookRepository.save(book);
+        return bookRepository.save(book);  // ← Controller에서 Map.of("book_id") 응답 생성
     }
 
     /** --------------------------------------------
-     * 2. 책 단건 조회 (POST /api/v1/books/check/{book_id})
+     * 2. 책 단건 조회 (POST /api/v1/books/check)
+     *    Controller에서 power/title/desc 구성
      * -------------------------------------------- */
     public Book findBook(Long bookId) {
+
         return bookRepository.findById(bookId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 책입니다."));
+                .orElseThrow(() -> new IllegalArgumentException("삭제된 목록입니다."));
     }
 
     /** --------------------------------------------
      * 3. 책 목록 조회 (GET /api/v1/books/list)
+     *    Controller에서 JSON 형태로 변환
      * -------------------------------------------- */
     public List<Book> findBooks() {
         return bookRepository.findAll();
     }
 
     /** --------------------------------------------
-     * 4. 책 수정 (PUT /api/v1/books/put/{book_id})
+     * 4. 책 수정 (PUT /api/v1/books/put)
+     *    명세서: 제목/내용만 수정, 이미지 수정 X
      * -------------------------------------------- */
-    public Book updateBook(Long bookId, Long userId, String title, String description, String imageUrl) {
+    public void updateBook(Long bookId, Long userId, String title, String description, String ignoreImage) {
 
         Book book = findBook(bookId);
 
-        // 작성자 검증
+        // 권한 확인
         if (!book.getUser().getUserId().equals(userId)) {
-            throw new IllegalArgumentException("권한이 없습니다.");
+            throw new IllegalArgumentException("권환 없음");
         }
 
-        // 업데이트 가능: title / description
-        if (title != null) book.setTitle(title);
-        if (description != null) book.setDescription(description);
+        // 제목/내용 수정
+        if (title != null && !title.trim().isEmpty())
+            book.setTitle(title);
 
-        // 이미지 URL 업데이트 (Stored in GeneratedImage Entity)
-        if (imageUrl != null) {
-            GeneratedImage img = book.getGeneratedImage();
+        if (description != null && !description.trim().isEmpty())
+            book.setDescription(description);
 
-            if (img == null) { 
-                img = new GeneratedImage();
-                img.setImageUrl(imageUrl);
-                imageRepository.save(img);
-                book.setGeneratedImage(img);
-            } else {
-                img.setImageUrl(imageUrl);
-                imageRepository.save(img);
-            }
-        }
-
-        return bookRepository.save(book);
+        bookRepository.save(book);
     }
 
     /** --------------------------------------------
@@ -91,8 +80,9 @@ public class BookService {
 
         Book book = findBook(bookId);
 
+        // 권한 확인
         if (!book.getUser().getUserId().equals(userId)) {
-            throw new IllegalArgumentException("권한이 없습니다.");
+            throw new IllegalArgumentException("권환 없음");
         }
 
         bookRepository.delete(book);
