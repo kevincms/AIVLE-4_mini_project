@@ -13,49 +13,72 @@ import {
     DialogTitle,
     DialogContent,
     DialogContentText,
-    DialogActions
+    DialogActions,
 } from "@mui/material";
 import Header from "../components/Header";
-import { useAuth } from "../context/AuthContext";       //※추가됨
+import axios from "axios";
 
-export default function LoginPage() {
+export default function SignupPage() {
     const router = useRouter();
-    const { login } = useAuth();        //※추가됨
 
     const [id, setId] = useState("");
     const [pw, setPw] = useState("");
+    const [pwCheck, setPwCheck] = useState("");
 
     const [dialog, setDialog] = useState({
         open: false,
         title: "",
         message: "",
-        success: false
+        success: false,
     });
 
     const openDialog = (title, message, success = false) => {
         setDialog({ open: true, title, message, success });
     };
 
-
     const closeDialog = () => {
-        setDialog(prev => ({ ...prev, open: false }));
+        setDialog((prev) => ({ ...prev, open: false }));
         if (dialog.success) {
-            router.replace("/");
+            router.replace("/login");
         }
     };
 
-    const handleLogin = async () => {
+    const handleSignup = async () => {
+        // 🔹 입력값 검증
+        if (!id || !pw || !pwCheck) {
+            openDialog("입력 오류", "모든 항목을 입력해주세요.");
+            return;
+        }
+
+        if (pw !== pwCheck) {
+            openDialog("입력 오류", "비밀번호가 다릅니다.");
+            return;
+        }
+
         try {
-            await login(id, pw);   // 여기서 id/pw 체크 + localStorage 저장
+            // 🔹 axios로 Next API Route 호출 → Next가 백엔드로 프록시
+            const res = await axios.post("/api/signup", {
+                loginId: id,
+                password: pw,
+            });
+
+            if (res.status !== 200 && res.status !== 201) {
+                throw new Error("회원가입에 실패했습니다.");
+            }
+
             openDialog(
-                "로그인 성공",
-                "환영합니다! 도서 목록 페이지로 이동합니다.",
+                "회원가입 완료",
+                "회원가입이 완료되었습니다. 로그인해주세요.",
                 true
             );
         } catch (e) {
+            console.error("회원가입 오류:", e);
             openDialog(
-                "로그인 실패",
-                "아이디 또는 비밀번호가 올바르지 않습니다."
+                "회원가입 실패",
+                e.response?.data?.message ||
+                (e.message === "Network Error"
+                    ? "서버와 통신 중 오류가 발생했습니다."
+                    : e.message || "회원가입 중 오류가 발생했습니다.")
             );
         }
     };
@@ -90,7 +113,7 @@ export default function LoginPage() {
                         fontWeight={800}
                         sx={{ mb: 1 }}
                     >
-                        로그인
+                        회원가입
                     </Typography>
                     <Typography
                         variant="body2"
@@ -98,7 +121,7 @@ export default function LoginPage() {
                         color="text.secondary"
                         sx={{ mb: 4 }}
                     >
-                        도서 관리 서비스를 이용하려면 로그인해주세요.
+                        도서 관리 서비스를 이용하려면 계정을 생성해주세요.
                     </Typography>
 
                     <TextField
@@ -117,25 +140,24 @@ export default function LoginPage() {
                         size="medium"
                         value={pw}
                         onChange={(e) => setPw(e.target.value)}
+                        sx={{ mb: 2.5 }}
+                    />
+
+                    <TextField
+                        fullWidth
+                        type="password"
+                        label="비밀번호 확인"
+                        size="medium"
+                        value={pwCheck}
+                        onChange={(e) => setPwCheck(e.target.value)}
                         sx={{ mb: 3 }}
                     />
 
                     <Button
                         fullWidth
                         variant="contained"
-                        onClick={handleLogin}
+                        onClick={handleSignup}
                         sx={{ py: 1.4, mb: 2, fontWeight: 600 }}
-                    >
-                        로그인
-                    </Button>
-
-                    <Button
-                        fullWidth
-                        variant="outlined"
-                        onClick={() =>
-                            router.push("/signup")
-                        }
-                        sx={{ py: 1.2, mb: 1 }}
                     >
                         회원가입
                     </Button>
@@ -143,10 +165,10 @@ export default function LoginPage() {
                     <Button
                         fullWidth
                         variant="text"
-                        onClick={() => router.push("/")}
+                        onClick={() => router.push("/login")}
                         sx={{ py: 1.1 }}
                     >
-                        도서 목록으로 돌아가기
+                        이미 계정이 있으신가요? 로그인하러 가기
                     </Button>
                 </Card>
             </Container>
