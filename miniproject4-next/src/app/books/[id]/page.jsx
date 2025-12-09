@@ -14,10 +14,12 @@ import {
     DialogContentText,
     DialogActions,
 } from "@mui/material";
-import { useParams, useRouter } from "next/navigation";
+import {useParams, useRouter, useSearchParams} from "next/navigation";
 import Header from "../../components/Header";
 import axios from "axios";
-import { useAuth } from "../../context/AuthContext";
+//import { useAuth } from "../../context/AuthContext";
+import {useAuth} from "@/app/context/AuthContext";
+import {ReflectAdapter as searchParams} from "next/dist/server/web/spec-extension/adapters/reflect";
 
 const API_BASE_URL =
     process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8080";
@@ -29,7 +31,7 @@ export default function BookDetailPage() {
     const bookId = params.id; // URL /books/[id]
 
     // 🔹 책 정보 (임시 더미)
-    const [book, setBook] = useState({ power: "" });
+    const [book, setBook] = useState({power: ""});
 
     // 🔹 Dialog 상태 (삭제 성공/실패 메시지용)
     const [dialogState, setDialogState] = useState({
@@ -61,16 +63,15 @@ export default function BookDetailPage() {
                     ...img_res.data,
                     power: book_res.data.power
                 });
-                console.log(book);
-            
-    
+
+
             } catch (err) {
                 console.error("❌ 책 목록 조회 실패:", err);
                 setBooks([]);
             } finally {
                 setLoading(false);
             }
-            
+
         };
         postBooks();
     }, []);
@@ -78,13 +79,12 @@ export default function BookDetailPage() {
     // ✅ 삭제 API 호출 함수
     const deleteBook = async (id) => {
         // TODO: 나중에 loginUser를 localStorage나 AuthContext에서 받아오면 됨
-        const loginUser = 2; // 임시: userId 2 사용
 
         const res = await axios.delete(
-            `${API_BASE_URL}/api/v1/books/delete/${id}`,
+            `${API_BASE_URL}/api/v1/books/delete`,
             {
-                // @RequestBody User user 와 매핑됨 → { "userId": 2 }
-                data: { userId: loginUser },
+                data: { user_id: user,
+                        book_id: bookId },
             }
         );
 
@@ -145,26 +145,26 @@ export default function BookDetailPage() {
                     </Box>
 
                     <Box sx={{ display: "flex", gap: 1 }}>
-                        {book.power === "작성자" && (
-                            <>
-                                <Button
-                                    variant="contained"
-                                    color="success"
-                                    onClick={() => router.push(`/books/edit?bookId=${bookId}`)}
-                                >
-                                    수정
-                                </Button>
+                    {book.power === "작성자" && (
+                        <>
+                            <Button
+                                variant="contained"
+                                color="success"
+                                onClick={() => router.push(`/books/edit?bookId=${bookId}`)}
+                            >
+                                수정
+                            </Button>
 
-                                <Button
-                                    variant="contained"
-                                    color="error"
-                                    onClick={handleDelete}
-                                >
-                                    삭제
-                                </Button>
-                            </>
-                        )}
-                    </Box>
+                            <Button
+                                variant="contained"
+                                color="error"
+                                onClick={handleDelete}
+                            >
+                                삭제
+                            </Button>
+                        </>
+                    )}
+                </Box>
                 </Box>
 
                 {/* 표지 + 내용 레이아웃 */}
