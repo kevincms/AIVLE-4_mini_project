@@ -110,13 +110,25 @@ export default function BookEditPage() {
 
 
     // ✅ 책 수정 API
-    const updateBook = async (id) => {
+    const updateBook = async () => {
 
         const res = await axios.put(`${API_BASE_URL}/api/v1/books/put`, {
-            book_id: id,
-            title,
+            book_id: bookId,
+            title : title,
             description: content,
             user_id: user,
+        });
+
+        return res.data;
+    };
+
+        // ✅ 책 수정 API
+    const updateImage = async () => {
+
+        const res = await axios.put(`${API_BASE_URL}/api/v1/image/put`, {
+            book_id: bookId,
+            image_url: coverUrl,
+            user_id: user
         });
 
         return res.data;
@@ -225,7 +237,8 @@ export default function BookEditPage() {
 
         try {
             if (isEditMode) {
-                await updateBook(bookId);
+                await updateBook();
+                await updateImage();
                 setDialogState({
                     open: true,
                     title: "수정 완료",
