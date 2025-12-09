@@ -21,6 +21,7 @@ import {
     DialogActions,
     CircularProgress,
 } from "@mui/material";
+import {useAuth} from "@/app/context/AuthContext";
 
 const API_BASE_URL =
     process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8080";
@@ -69,13 +70,19 @@ export default function BookEditPage() {
         const fetchBook = async () => {
             if (!isEditMode) return;
             try {
-                const res = await fetch(`${API_BASE_URL}/api/v1/books/${bookId}`);
-                if (!res.ok) throw new Error("도서 정보를 불러오지 못했습니다.");
-                const data = await res.json();
+                const book_res = await axios.post(`http://localhost:8080/api/v1/books/check`, {
+                    book_id : bookId,
+                    user_id: user,
+                });
 
-                setTitle(data.title || "");
-                setContent(data.content || "");
-                setCoverUrl(data.coverUrl || "");
+                const img_res = await axios.post(`http://localhost:8080/api/v1/image/check`, {
+                    book_id : bookId,
+                });
+                
+                setTitle(book_res.data.title || "");
+                setContent(book_res.data.description || "");
+                setCoverUrl(img_res.data.image_url || "");
+                
             } catch (e) {
                 console.error(e);
                 setDialogState({
@@ -88,14 +95,14 @@ export default function BookEditPage() {
         fetchBook();
     }, [isEditMode, bookId]);
 
+    const { user } = useAuth();
     // ✅ 책 생성 API
     const createBook = async () => {
-        const loginUser = 2;
 
         const res = await axios.post(`${API_BASE_URL}/api/v1/books`, {
             title: title,
             description: content,
-            user_id: loginUser,
+            user_id: user,
         });
 
         return res.data.book_id;
@@ -104,16 +111,49 @@ export default function BookEditPage() {
 
     // ✅ 책 수정 API
     const updateBook = async (id) => {
-        const loginUser = 2;
 
         const res = await axios.put(`${API_BASE_URL}/api/v1/books/put`, {
-            bookId: id,
+            book_id: id,
             title,
             description: content,
-            userId: loginUser,
+            user_id: user,
         });
 
         return res.data;
+    };
+
+    // ✅ 이미지 생성 API
+    const createImage = async (bookId, coverUrl) => {
+        if (!bookId) throw new Error("book_id가 없습니다.");
+        if (!coverUrl) throw new Error("image_url이 비어있습니다.");
+
+        const res = await axios.post(`${API_BASE_URL}/api/v1/image`, {
+            image_url: coverUrl,
+            book_id: bookId,
+        });
+
+        return res.data;
+    };
+
+    // 🔹 API 요청 함수 (1209 추가)
+    const generateCoverApi = async ({ apiKey, title, content, model }) => {
+        const response = await fetch("/api/cover-generator", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ apiKey, title, content, model }),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.error || "표지 생성 중 알 수 없는 오류가 발생했습니다.");
+        }
+
+        if (!result.imageUrl) {
+            throw new Error("서버로부터 유효한 이미지 URL을 받지 못했습니다.");
+        }
+
+        return result.imageUrl;
     };
 
     // 🔹 표지 생성
@@ -141,38 +181,13 @@ export default function BookEditPage() {
         setCoverUrl("");
 
         try {
-            const response = await fetch("/api/cover-generator", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    apiKey,
-                    title,
-                    content,
-                    model,
-                }),
+            const imageUrl = await generateCoverApi({ apiKey, title, content, model });
+            setCoverUrl(imageUrl);
+            setDialogState({
+                open: true,
+                title: "생성 완료",
+                message: "AI 표지 생성이 완료되었습니다. 등록을 진행하세요.",
             });
-
-            const result = await response.json();
-
-            if (response.ok) {
-                if (result.imageUrl) {
-                    setCoverUrl(result.imageUrl);
-                    setDialogState({
-                        open: true,
-                        title: "생성 완료",
-                        message: "AI 표지 생성이 완료되었습니다. 등록을 진행하세요.",
-                    });
-                } else {
-                    throw new Error("서버로부터 유효한 이미지 URL을 받지 못했습니다.");
-                }
-            } else {
-                throw new Error(
-                    result.error ||
-                    "표지 생성 중 알 수 없는 오류가 발생했습니다."
-                );
-            }
         } catch (error) {
             console.error("표지 생성 실패:", error.message);
             setDialogState({
@@ -217,13 +232,10 @@ export default function BookEditPage() {
                     message: `도서(id: ${bookId}) 수정이 완료되었습니다.`,
                 });
             } else {
-                const bookId = await createBook();
+                const newBookId  = await createBook();
 
+                await createImage(newBookId, coverUrl);
 
-                const res = await axios.post(`${API_BASE_URL}/api/v1/image`, {
-                    image_url: coverUrl,
-                    book_id : bookId
-                });
                 setDialogState({
                     open: true,
                     title: "등록 완료",
