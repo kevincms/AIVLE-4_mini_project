@@ -23,17 +23,15 @@
 
 ### **Backend**
 - Spring Boot 
-- Spring Web / Spring Data JPA
+- Spring Web
+- Spring Data JPA
 - H2 Database
+- Gradle
 - Lombok
 - Rest API
-- OpenAI 이미지 다운로드 기능
 
 ### **AI**
 - OpenAI DALL·E (표지 자동 생성)
-
-
----
 
 # 🧱 Project Structure
 
