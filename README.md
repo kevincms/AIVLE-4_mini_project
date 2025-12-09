@@ -210,18 +210,18 @@ NEXT_PUBLIC_ 로 시작하는 환경 변수는 브라우저에서도 사용 가�
 # 🚀 실행 방법
 
 1️⃣ 프로젝트 클론
-git clone https://github.com/your-repo/miniproject04-frontend.git
+```git clone https://github.com/your-repo/miniproject04-frontend.git
 cd miniproject04-frontend
-
+```
 2️⃣ 패키지 설치
-npm install
+```npm install```
 또는
-yarn install
+```yarn install```
 
 3️⃣ 개발 서버 실행
-npm run dev
+```npm run dev```
 또는
-yarn dev
+```yarn dev```
 
 접속 주소: http://localhost:3000
 
