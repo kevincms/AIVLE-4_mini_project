@@ -207,7 +207,7 @@ NEXT_PUBLIC_ 로 시작하는 환경 변수는 브라우저에서도 사용 가�
 
 ---
 
-#🚀 실행 방법
+# 🚀 실행 방법
 
 1️⃣ 프로젝트 클론
 git clone https://github.com/your-repo/miniproject04-frontend.git
