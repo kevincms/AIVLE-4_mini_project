@@ -1,120 +1,116 @@
 package com.example.miniproject04.service;
 
 import com.example.miniproject04.Entity.Book;
-import com.example.miniproject04.Entity.GeneratedImage;
+import com.example.miniproject04.Entity.User;
 import com.example.miniproject04.repository.BookRepository;
-import com.example.miniproject04.repository.GeneratedImageRepository;
+import com.example.miniproject04.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Sort;
 
-import java.io.InputStream;
-import java.net.URL;
-import java.nio.file.*;
-import java.util.UUID;
+
+import java.util.List;
+
 
 @Service
 @RequiredArgsConstructor
-public class ImageService {
+public class BookService {
 
-    private final GeneratedImageRepository imageRepository;
     private final BookRepository bookRepository;
+    private final UserRepository userRepository;
+    private final ImageService imageService;
 
-    // 이미지 저장할 루트 경로 (Windows)
-    private static final String IMAGE_SAVE_DIR = "C:/4mp_image";
-
-    /** =======================================================
-     * 1. 이미지 등록 (프론트에서 받은 tempUrl 다운로드)
-     * ======================================================= */
+    /** --------------------------------------------
+     * 1. 책 생성 (POST /api/v1/books)
+     * -------------------------------------------- */
     @Transactional
-    public void createImage(String tempUrl, Long bookId) {
+    public Book createBook(Long userId, String title, String description) {
 
-        Book book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new IllegalArgumentException("책을 찾을 수 없습니다."));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
-        // 1) 프론트에서 받은 DALL·E URL 다운로드
-        String localImagePath = downloadImageToLocal(tempUrl, bookId);
+        Book book = new Book();
+        book.setUser(user);
+        book.setTitle(title);
+        book.setDescription(description);
 
-        // 2) DB 저장
-        GeneratedImage img = new GeneratedImage();
-        img.setBook(book);
-        img.setImageUrl(localImagePath); // 
-        imageRepository.save(img);
+        return bookRepository.save(book);  // ← Controller에서 Map.of("book_id") 응답 생성
     }
 
-    /** =======================================================
-     * 2. 이미지 조회
-     * ======================================================= */
+    /** --------------------------------------------
+     * 2. 책 단건 조회 (POST /api/v1/books/check)
+     *    Controller에서 power/title/desc 구성
+     * -------------------------------------------- */
     @Transactional(readOnly = true)
-    public GeneratedImage getImage(Long bookId) {
+    public Book findBook(Long bookId) {
 
-        Book book = bookRepository.findById(bookId)
+        return bookRepository.findById(bookId)
                 .orElseThrow(() -> new IllegalArgumentException("삭제된 목록입니다."));
-
-        GeneratedImage img = imageRepository.findByBook(book);
-
-        if (img == null) {
-            throw new IllegalArgumentException("삭제된 목록입니다.");
-        }
-
-        return img;
     }
 
-    /** =======================================================
-     * 3. 이미지 수정
-     * ======================================================= */
+    /** --------------------------------------------
+     * 3. 책 목록 조회 (GET /api/v1/books/list)
+     *    Controller에서 JSON 형태로 변환
+     * -------------------------------------------- */
+    @Transactional(readOnly = true)
+    public List<Book> findBooks() {
+        return bookRepository.findAll(Sort.by(Sort.Direction.DESC, "bookId"));
+    }
+
+    /** --------------------------------------------
+     * 4. 책 수정 (PUT /api/v1/books/put)
+     *    명세서: 제목/내용만 수정, 이미지 수정 X
+     * -------------------------------------------- */
     @Transactional
-    public void updateImage(Long bookId, String tempUrl, Long userId) {
+    public void updateBook(Long bookId, Long userId, String title, String description, String ignoreImage) {
 
-        Book book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new IllegalArgumentException("삭제된 목록입니다."));
+        Book book = findBook(bookId);
 
+        // 권한 확인
         if (!book.getUser().getUserId().equals(userId)) {
-            throw new IllegalArgumentException("권한 없음");
+            throw new IllegalArgumentException("권환 없음");
         }
 
-        GeneratedImage img = imageRepository.findByBook(book);
+        // 제목/내용 수정
+        if (title != null && !title.trim().isEmpty())
+            book.setTitle(title);
 
-        if (img == null) {
-            throw new IllegalArgumentException("삭제된 목록입니다.");
-        }
+        if (description != null && !description.trim().isEmpty())
+            book.setDescription(description);
 
-        // 새 이미지 다운로드
-        String newLocalPath = downloadImageToLocal(tempUrl, bookId);
-
-        img.setImageUrl(newLocalPath);
-        imageRepository.save(img);
+        bookRepository.save(book);
     }
 
-    /** =======================================================
-     * 임시 URL → 로컬에 저장
-     * ======================================================= */
-    private String downloadImageToLocal(String tempUrl, Long bookId) {
+    /** --------------------------------------------
+     * 5. 책 삭제 (DELETE /api/v1/books/delete/{book_id})
+     * -------------------------------------------- */
+//    @Transactional
+//    public void deleteBook(Long bookId, Long userId) {
+//
+//        Book book = findBook(bookId);
+//
+//        // 권한 확인
+//        if (!book.getUser().getUserId().equals(userId)) {
+//            throw new IllegalArgumentException("권환 없음");
+//        }
+//
+//        bookRepository.delete(book);
+//    }
+    @Transactional
+    public void deleteBook(Long bookId, Long userId) {
 
-        try {
-            URL url = new URL(tempUrl);
-            InputStream in = url.openStream();
+        Book book = findBook(bookId);
 
-            // 저장 폴더 생성
-            Path saveDir = Paths.get("C:/images");
-            if (!Files.exists(saveDir)) {
-                Files.createDirectories(saveDir);
-            }
-
-            // 파일명 생성
-            String fileName = "book_" + bookId + "_" + UUID.randomUUID() + ".png";
-
-            // 실제 저장될 파일 경로
-            Path destination = saveDir.resolve(fileName);
-
-            // 다운로드 → 파일 저장
-            Files.copy(in, destination, StandardCopyOption.REPLACE_EXISTING);
-            // ⭐⭐ DB에는 이 경로만 저장한다!
-            return "/images/" + fileName;
-
-        } catch (Exception e) {
-            throw new RuntimeException("이미지 다운로드 실패: " + e.getMessage());
+        // 권한 확인
+        if (!book.getUser().getUserId().equals(userId)) {
+            throw new IllegalArgumentException("권환 없음");
         }
-    }
 
+        // 1) 이미지 먼저 삭제
+        imageService.deleteImageByBookId(bookId);
+
+        // 2) 책 삭제
+        bookRepository.delete(book);
+    }
 }

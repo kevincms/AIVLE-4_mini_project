@@ -43,7 +43,7 @@ public class ImageService {
 
         imageRepository.save(img);
 
-        return imageUrl; // ⭐ 프론트에 반환
+        return imageUrl; // ⭐ 프론트에 반환할 상대URL (/images/xxx.png)
     }
 
     /**
@@ -94,7 +94,7 @@ public class ImageService {
         img.setImageUrl(newImageUrl);
         imageRepository.save(img);
 
-        return newImageUrl; // ⭐ 프론트에 반환
+        return newImageUrl; // ⭐ 프론트로 반환할 상대URL
     }
 
     /**
@@ -123,11 +123,41 @@ public class ImageService {
             // 이미지 저장
             Files.copy(in, destination, StandardCopyOption.REPLACE_EXISTING);
 
-            // ⭐ DB에는 URL 경로만 저장
+            // ⭐ DB에는 상대URL만 저장
             return "/images/" + fileName;
 
         } catch (Exception e) {
             throw new RuntimeException("이미지 다운로드 실패: " + e.getMessage());
+        }
+    }
+
+    @Transactional
+    public void deleteImageByBookId(Long bookId) {
+
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new IllegalArgumentException("삭제된 목록입니다."));
+
+        GeneratedImage img = imageRepository.findByBook(book);
+
+        if (img == null) return; // 이미지 없으면 바로 종료
+
+        // 1) 로컬 파일 삭제
+        deleteLocalFile(img.getImageUrl());
+
+        // 2) DB 삭제
+        imageRepository.delete(img);
+    }
+
+    private void deleteLocalFile(String imageUrl) {
+        try {
+            // "/images/파일명.png" → 실제 저장 경로로 변환
+            String fileName = imageUrl.replace("/images/", "");
+            Path filePath = Paths.get(IMAGE_SAVE_DIR, fileName);
+
+            Files.deleteIfExists(filePath);
+
+        } catch (Exception e) {
+            System.out.println("이미지 파일 삭제 실패: " + e.getMessage());
         }
     }
 }
