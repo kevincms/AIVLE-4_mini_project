@@ -16,8 +16,10 @@ public class ImageController {
 
     private final ImageService imageService;
 
+    private final String BASE_URL = "http://localhost:8080"; // ⭐ 이미지 절대경로 prefix
+
     /** =======================================================
-     * 1) 이미지 생성 (POST /api/v1/image)
+     * 1) 이미지 생성
      * ======================================================= */
     @PostMapping
     public ResponseEntity<?> createImage(@RequestBody Map<String, Object> req) {
@@ -26,13 +28,16 @@ public class ImageController {
             String tempUrl = (String) req.get("image_url");
             Long bookId = Long.valueOf(req.get("book_id").toString());
 
-            // ⭐ 저장된 이미지 URL 반환
+            // 상대 URL 받음 → "/images/파일명.png"
             String savedUrl = imageService.createImage(tempUrl, bookId);
+
+            // ⭐ 절대 URL로 변환
+            String fullUrl = BASE_URL + savedUrl;
 
             return ResponseEntity.ok(
                     Map.of(
                             "status", "success",
-                            "image_url", savedUrl
+                            "image_url", fullUrl
                     )
             );
 
@@ -44,7 +49,7 @@ public class ImageController {
     }
 
     /** =======================================================
-     * 2) 이미지 조회 (POST /api/v1/image/check)
+     * 2) 이미지 조회
      * ======================================================= */
     @PostMapping("/check")
     public ResponseEntity<?> getImage(@RequestBody Map<String, Object> req) {
@@ -53,11 +58,13 @@ public class ImageController {
             Long bookId = Long.valueOf(req.get("book_id").toString());
             GeneratedImage img = imageService.getImage(bookId);
 
-            // img.getImageUrl() → "/images/파일명.png"
+            // ⭐ 절대 URL 생성
+            String fullUrl = BASE_URL + img.getImageUrl();
+
             return ResponseEntity.ok(
                     Map.of(
                             "power", "이용자",
-                            "image_url", img.getImageUrl()
+                            "image_url", fullUrl
                     )
             );
 
@@ -69,7 +76,7 @@ public class ImageController {
     }
 
     /** =======================================================
-     * 3) 이미지 수정 (PUT /api/v1/image/put)
+     * 3) 이미지 수정
      * ======================================================= */
     @PutMapping("/put")
     public ResponseEntity<?> updateImage(@RequestBody Map<String, Object> req) {
@@ -79,13 +86,16 @@ public class ImageController {
             Long userId = Long.valueOf(req.get("user_id").toString());
             String tempUrl = (String) req.get("image_url");
 
-            // ⭐ 새 이미지 URL 반환
+            // 상대 URL 받음
             String updatedUrl = imageService.updateImage(bookId, tempUrl, userId);
+
+            // ⭐ 절대 URL 변환
+            String fullUrl = BASE_URL + updatedUrl;
 
             return ResponseEntity.ok(
                     Map.of(
                             "status", "success",
-                            "image_url", updatedUrl
+                            "image_url", fullUrl
                     )
             );
 
