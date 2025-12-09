@@ -12,6 +12,7 @@ Spring Boot 기반의 **책(Book) 생성 서비스**로, 사용자(User)가 책�
 - **H2 Database**
 - **Gradle**
 - **Lombok**
+- **Rest API**
 
 ---
 ## 🧱 ERD 구조
