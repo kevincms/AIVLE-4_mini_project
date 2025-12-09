@@ -9,13 +9,13 @@ OpenAI(DALL·E)를 이용해 AI 표지 이미지를 생성한 후,
 
 # 🛠️ 기술 스택
 
-Next.js (App Router)
-React
-Material UI (MUI)
-Axios
-Context API (AuthContext)
-OpenAI DALL·E API (이미지 생성)
-환경변수 기반 백엔드 연동 (NEXT_PUBLIC_BACKEND_URL, BACKEND_URL)
+- **Next.js (App Router)**
+- **React**
+- **Material UI (MUI)**
+- **Axios**
+- **Context API (AuthContext)**
+- **OpenAI DALL·E API (이미지 생성)**
+- **환경변수 기반 백엔드 연동 (NEXT_PUBLIC_BACKEND_URL, BACKEND_URL)**
 
 ---
 
