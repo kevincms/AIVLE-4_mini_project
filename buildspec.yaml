@@ -12,11 +12,8 @@ phases:
       - cd miniproject4-spring/miniproject04
       - chmod +x gradlew
       - ./gradlew clean build -x test
-      - chmod +x deploy.sh
+      - cd ../../..
 
 artifacts:
-  base-directory: miniproject4-spring/miniproject04
   files:
-    - appspec.yml
-    - deploy.sh
-    - build/libs/*.jar
+    - '**/*'
