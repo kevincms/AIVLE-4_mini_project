@@ -11,8 +11,8 @@ files:
     overwrite: true
 
 permissions:
-  # 🔹 Next.js 앱 디렉토리 (중요)
-  - object: /home/ubuntu/apps/miniproject4-next
+  # 🔥 부모 디렉토리까지 포함 (가장 중요)
+  - object: /home/ubuntu/apps
     pattern: "**"
     owner: ubuntu
     group: ubuntu
@@ -21,7 +21,7 @@ permissions:
       - directory
       - file
 
-  # 🔹 스크립트 실행 권한
+  # 🔹 스크립트 실행 권한 (명시적으로 유지)
   - object: /home/ubuntu/apps/scripts
     pattern: "*.sh"
     owner: ubuntu
