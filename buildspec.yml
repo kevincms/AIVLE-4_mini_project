@@ -18,4 +18,4 @@ artifacts:
   files:
     - appspec.yml
     - scripts/**/*
-    - build/libs/*.jar
+    - miniproject4-spring/miniproject04/build/libs/*.jar
