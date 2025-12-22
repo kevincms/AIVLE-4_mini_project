@@ -1,6 +1,4 @@
 #!/bin/bash
-set -e
-
 APP_DIR="/home/ubuntu/app"
 PID_FILE="$APP_DIR/app.pid"
 LOG_FILE="$APP_DIR/app.log"
