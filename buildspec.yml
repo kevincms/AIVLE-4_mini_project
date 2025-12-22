@@ -11,37 +11,14 @@ phases:
 
   build:
     commands:
-      # ---- 최소 아티팩트 구성 ----
-      - rm -rf deploy
-      - mkdir -p deploy/$APP_DIR
-
-      # REVISION 파일 생성 (deploy 만든 뒤!)
-      - echo "${CODEBUILD_RESOLVED_SOURCE_VERSION:-unknown}" > deploy/REVISION.txt
-      - date -u >> deploy/REVISION.txt
-
-      # Next build
       - cd $APP_DIR
       - npm ci
-      - npm run build
       - cd ..
 
-      # CodeDeploy 필수: 아티팩트 루트에 appspec.yml
-      - cp appspec.yml deploy/
-      - if [ -d scripts ]; then cp -r scripts deploy/; fi
-
-      # (권한/CRLF 방지: 강추)
-      - if [ -d deploy/scripts ]; then chmod +x deploy/scripts/*.sh; fi
-      - if [ -d deploy/scripts ]; then sed -i 's/\r$//' deploy/scripts/*.sh; fi
-
-      # Next.js 실행에 필요한 최소 파일들만 포함
-      - cp -r $APP_DIR/.next deploy/$APP_DIR/
-      - if [ -d $APP_DIR/public ]; then cp -r $APP_DIR/public deploy/$APP_DIR/; fi
-      - cp $APP_DIR/package.json deploy/$APP_DIR/
-      - if [ -f $APP_DIR/package-lock.json ]; then cp $APP_DIR/package-lock.json deploy/$APP_DIR/; fi
-      - if [ -f $APP_DIR/next.config.js ]; then cp $APP_DIR/next.config.js deploy/$APP_DIR/; fi
-      - if [ -f $APP_DIR/.env.production ]; then cp $APP_DIR/.env.production deploy/$APP_DIR/; fi
-
 artifacts:
-  base-directory: deploy
   files:
-    - "**/*"
+    - appspec.yml
+    - scripts/**/*
+    - miniproject4-next/.next/**/*
+    - miniproject4-next/package.json
+    - miniproject4-next/package-lock.json
