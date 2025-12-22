@@ -62,7 +62,7 @@ export default function SignupPage() {
 
         try {
             // 🔹 axios로 Next API Route 호출 → Next가 백엔드로 프록시
-            const res = await axios.post(`${API_BASE_URL}/api/signup`, {
+            const res = await axios.post(`${API_BASE_URL}/api/v1/users/signup`, {
                 loginId: id,
                 password: pw,
             });
