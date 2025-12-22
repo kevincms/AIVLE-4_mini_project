@@ -1,3 +1,6 @@
+server:
+  address: 0.0.0.0
+  port: 8080
 spring:
   application:
     name: miniproject04
@@ -18,7 +21,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create
-    show-sql: true
+    show-sql: trues
     properties:
       hibernate:
         format_sql: true

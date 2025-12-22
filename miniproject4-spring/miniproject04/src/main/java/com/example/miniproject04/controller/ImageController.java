@@ -5,8 +5,10 @@ import com.example.miniproject04.service.ImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.util.Map;
+import java.net.InetAddress;
 
 @RestController
 @RequiredArgsConstructor
@@ -16,7 +18,28 @@ public class ImageController {
 
     private final ImageService imageService;
 
-    private final String BASE_URL = "http://localhost:8080"; // ⭐ 이미지 절대경로 prefix
+    //private final String BASE_URL = "http://localhost:8080"; // ⭐ 이미지 절대경로 prefix
+    // 서버 ip로 base url
+   /* private String getBaseUrl(HttpServletRequest request) {
+        return ServletUriComponentsBuilder.fromRequestUri(request)
+                .replacePath(null)
+                .replaceQuery(null)
+                .build()
+                .toUriString();
+    }
+    */
+
+    private String getBaseUrl() {
+        try {
+            String ip = InetAddress.getLocalHost().getHostAddress();
+            int port = 8080; // 서버 포트 (고정)
+
+            return "http://" + ip + ":" + port;
+        } catch (Exception e) {
+            throw new RuntimeException("서버 IP 조회 실패", e);
+        }
+    }
+
 
     /** =======================================================
      * 1) 이미지 생성
@@ -32,7 +55,9 @@ public class ImageController {
             String savedUrl = imageService.createImage(tempUrl, bookId);
 
             // ⭐ 절대 URL로 변환
-            String fullUrl = BASE_URL + savedUrl;
+            //String fullUrl = BASE_URL + savedUrl;
+            //String fullUrl = getBaseUrl(request) + savedUrl;
+            String fullUrl = getBaseUrl() + savedUrl;
 
             return ResponseEntity.ok(
                     Map.of(
@@ -59,7 +84,8 @@ public class ImageController {
             GeneratedImage img = imageService.getImage(bookId);
 
             // ⭐ 절대 URL 생성
-            String fullUrl = BASE_URL + img.getImageUrl();
+            //String fullUrl = getBaseUrl(request) + img.getImageUrl();
+            String fullUrl = getBaseUrl() + img.getImageUrl();
 
             return ResponseEntity.ok(
                     Map.of(
@@ -90,7 +116,8 @@ public class ImageController {
             String updatedUrl = imageService.updateImage(bookId, tempUrl, userId);
 
             // ⭐ 절대 URL 변환
-            String fullUrl = BASE_URL + updatedUrl;
+            //String fullUrl = getBaseUrl(request) + updatedUrl;
+            String fullUrl = getBaseUrl() + updatedUrl;
 
             return ResponseEntity.ok(
                     Map.of(
