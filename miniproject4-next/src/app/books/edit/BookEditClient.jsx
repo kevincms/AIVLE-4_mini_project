@@ -156,7 +156,7 @@ export default function BookEditPage() {
 
     // 🔹 API 요청 함수 (1209 추가)
     const generateCoverApi = async ({ apiKey, title, content, model }) => {
-        const response = await fetch(`${API_BASE_URL}/api/cover-generator`, {
+        const response = await fetch(`/api/cover-generator`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ apiKey, title, content, model }),
