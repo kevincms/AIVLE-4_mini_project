@@ -13,6 +13,7 @@ phases:
     commands:
       - cd $APP_DIR
       - npm ci
+      - npm run build
       - cd ..
 
 artifacts:
