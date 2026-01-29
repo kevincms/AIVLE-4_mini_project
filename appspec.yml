@@ -11,8 +11,8 @@ permissions:
   # 🔥 부모 디렉토리까지 포함 (권한 문제 종결)
   - object: /home/ubuntu/app
     pattern: "**"
-    owner: ubuntu
-    group: ubuntu
+    owner: root
+    group: root
     mode: 755
     type:
       - directory
@@ -22,9 +22,9 @@ hooks:
   ApplicationStop:
     - location: scripts/stop.sh
       timeout: 60
-      runas: ubuntu
+      runas: root
 
   ApplicationStart:
     - location: scripts/start.sh
       timeout: 120
-      runas: ubuntu
+      runas: root
